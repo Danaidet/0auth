@@ -1,40 +1,3 @@
-// import Link from "next/link"; 
-// import { auth } from "@/auth"; 
-// import { getProducts } from "./lib/products";
-// import { AuthButtons } from "../components/auth-buttons"; 
- 
-// export default async function HomePage() { 
-//   const session = await auth(); 
-//   const products = getProducts(); 
-//   // เติม: ฟังก์ชันที่แปลงค่าเป็น true หรือ false 
-//   const isLoggedIn = Boolean(session?.user); 
- 
-//   return ( 
-//     <main> 
-//       <header> 
-//         <h1>สินค้า</h1> 
-//         <AuthButtons isLoggedIn={isLoggedIn} userName={session?.user?.name} /> 
-//       </header> 
- 
-//       <div> 
-//         {products.map((product) => ( 
-//           <article key={product.id} data-testid="product"> 
-//             <h2>{product.name}</h2> 
-//             <p>{product.description}</p> 
-//             <p>฿{product.price.toLocaleString("th-TH")}</p> 
-//             {isLoggedIn && ( 
-//               <div> 
-//                 <Link href={`/products/${product.id}/edit`}>แก้ไข</Link> 
-//                 <Link href={`/products/${product.id}/delete`}>ลบ</Link> 
-//               </div> 
-//             )} 
-//           </article> 
-//         ))} 
-//         {products.length === 0 && <p>ไม่มีสินค้า</p>} 
-//       </div> 
-//     </main> 
-//   ); 
-// } 
 import Link from "next/link";
 import { auth } from "@/auth";
 import { getProducts } from "./lib/products";
@@ -42,8 +5,7 @@ import { AuthButtons } from "../components/auth-buttons";
 
 export default async function HomePage() {
   const session = await auth();
-  const products = getProducts();
-  // เติม: ฟังก์ชันที่แปลงค่าเป็น true หรือ false
+  const products = await getProducts();
   const isLoggedIn = Boolean(session?.user);
 
   return (
@@ -60,12 +22,12 @@ export default async function HomePage() {
             data-testid="product"
             className="flex flex-col rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg transition hover:-translate-y-1 hover:border-indigo-400/50 hover:bg-white/10"
           >
-            <h2 className="text-xl font-semibold">{product.name}</h2>
+            <h2 className="text-xl font-semibold">{product.title}</h2>
             <p className="mt-2 flex-1 text-sm text-gray-400">
               {product.description}
             </p>
             <p className="mt-4 text-2xl font-bold text-indigo-400">
-              ฿{product.price.toLocaleString("th-TH")}
+              ${product.price.toLocaleString("en-US")}
             </p>
             {isLoggedIn && (
               <div className="mt-4 flex gap-2">

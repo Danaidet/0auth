@@ -1,70 +1,56 @@
 export type Product = {
-    id: string
-    name: string
-    price: number
-    description: string
+  id: number
+  title: string
+  description: string
+  price: number
+  stock: number
+  category: string
+  thumbnail: string
 }
 
-const initialProducts: Product[] = [
-    {
-        id: "p001",
-        name: "Mechanical Keyboard",
-        price: 2590,
-        description: "คีย์บอร์ด Mechanical สำหรับทำงานและเล่นเกม",
-    },
-    {
-        id: "p002",
-        name: "Wireless Mouse",
-        price: 1290,
-        description: "เมาส์ไร้สาย น้ำหนักเบา",
-    },
-    {
-        id: "p003",
-        name: "USB-C Hub",
-        price: 1890,
-        description: "USB-C Hub พร้อม HDMI และ Card Reader",
-    },
-]
+const API_BASE = "https://dummyjson.com"
 
-declare global {
-    // eslint-disable-next-line no-var 
-    var demoProducts: Product[] | undefined
+export async function getProducts(limit = 12): Promise<Product[]> {
+  const res = await fetch(`${API_BASE}/products?limit=${limit}`, {
+    cache: "no-store",
+  })
+  if (!res.ok) throw new Error("Failed to fetch products")
+  const data = await res.json()
+  return data.products
 }
 
-const products =
-    globalThis.demoProducts ??
-    structuredClone(initialProducts)
-
-if (process.env.NODE_ENV !== "production") {
-    globalThis.demoProducts = products
+export async function getProduct(id: string | number): Promise<Product | null> {
+  const res = await fetch(`${API_BASE}/products/${id}`, { cache: "no-store" })
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error("Failed to fetch product")
+  return res.json()
 }
 
-export function getProducts() {
-    return products
+export async function searchProducts(q: string): Promise<Product[]> {
+  const res = await fetch(
+    `${API_BASE}/products/search?q=${encodeURIComponent(q)}`,
+    { cache: "no-store" }
+  )
+  if (!res.ok) throw new Error("Failed to search products")
+  const data = await res.json()
+  return data.products
 }
 
-export function getProduct(id: string) {
-    return products.find((product) => product.id === id)
-}
-
-export function updateProduct(
-    id: string,
-    values: Pick<Product, "name" | "price" | "description">,
-
+export async function updateProduct(
+  id: string | number,
+  values: Partial<Pick<Product, "title" | "price" | "description" | "stock">>
 ) {
-    const product = getProduct(id)
-    if (!product) {
-        throw new Error("Product not found")
-    }
-    product.name = values.name
-    product.price = values.price
-    product.description = values.description
+  const res = await fetch(`${API_BASE}/products/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(values),
+  })
+  if (!res.ok) throw new Error("Failed to update product")
+  return res.json()
 }
 
-export function deleteProduct(id: string) {
-    const index = products.findIndex((product) => product.id === id)
-    if (index === -1) {
-        throw new Error("Product not found")
-    }
-    products.splice(index, 1)
-}  
+export async function deleteProduct(id: string | number) {
+  const res = await fetch(`${API_BASE}/products/${id}`, { method: "DELETE" })
+  if (!res.ok) throw new Error("Failed to delete product")
+  return res.json()
+}
